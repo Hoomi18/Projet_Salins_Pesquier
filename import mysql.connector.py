@@ -53,7 +53,7 @@ while i <= nb_capteur:
         cursor.close() # ferme le curseur
         f=open("message.txt", mode="a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
         f.write("balise_id="+str(balise_id[0][0])+","+str(condition)) # affiche le numéro de la balise
-        f.write('\n') # saute une ligne suce
+        f.write('\n') # saute une ligne
         f.close() # ferme le fichier
     else:
         print("erreur")
