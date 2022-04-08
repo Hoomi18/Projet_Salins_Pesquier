@@ -1,3 +1,4 @@
+from time import sleep
 import mysql.connector
 
 # paramètre de connexion avec la bdd
@@ -52,11 +53,15 @@ while i <= nb_capteur:
         balise_id = cursor.fetchall()  # récupère la valeur reçu par ma requête
         cursor.close() # ferme le curseur
         f=open("message.txt", mode="a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
-        f.write("balise_id="+str(balise_id[0][0])+","+str(condition)) # affiche le numéro de la balise
+        f.write("balise_id="+str(balise_id[0][0])+","+"sensor_id="+str(i)+","+str(condition)) # affiche le numéro de la balise
         f.write('\n') # saute une ligne
         f.close() # ferme le fichier
     else:
         print("erreur")
     i = i+1
-
+print("envoie mail")
+sleep(10)
+f=open("message.txt", mode="w") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
+f.write("") # affiche le numéro de la balise
+f.close() # ferme le fichier
 db.close()
