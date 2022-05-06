@@ -1,11 +1,20 @@
 #! /usr/bin/python3.9
-from time import sleep
-import mysql.connector
-import pathlib
+from datetime import datetime
+from time import sleep#faire des pauses
+import mysql.connector #connexion avec la bdd
+import pathlib#pour avoir le chemin du script
+from email.mime.multipart import MIMEMultipart#pour envoyer un mail
+from email.mime.text import MIMEText#pour envoyer un mail
+import smtplib#pour envoyer un mail
+import time#date et heure
 
-path=pathlib.Path("send_mail_error.py").parent.absolute()
-path=str(path)
+path=pathlib.Path("send_mail_error.py").parent.absolute()#récupère le chemin du fichier
+path=str(path)#converti le chemin en string
 print(path)
+
+f=open(path+"/message.txt", mode="w") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
+f.write("") # affiche le numéro de la balise
+f.close() # ferme le fichier
 
 # paramètre de connexion avec la bdd
 db = mysql.connector.connect(
@@ -15,11 +24,13 @@ db = mysql.connector.connect(
     database="monitoring_pesquiers"
 )
 
-id_max="SELECT MAX(sensor_id) FROM `listSensors`"
+id_max="SELECT MAX(sensor_id) FROM `sensorsValues`"#requete pour récupérer le nombre de capteur
 cursor = db.cursor()  # configure un curseur sur la bdd
 cursor.execute(id_max)  # execute ma requete
 nb_capteur = cursor.fetchall()  # récupère la valeur maximum ou minimum atteignable
 cursor.close() # ferme le curseur
+
+
 i = 1 # numéro d'ID dans la table
 print (nb_capteur[0][0])
 nb_capteur = int(nb_capteur[0][0]) # nombre de capteur
@@ -74,8 +85,11 @@ while i <= nb_capteur:
             balise_id = cursor.fetchall()  # récupère la valeur reçu par ma requête
             cursor.close() # ferme le curseur
 
-            f=open(path+"/message.txt", mode="a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
-            f.write("balise_id="+str(balise_id[0][0])+","+"sensor_id="+str(i)+","+str(condition)) # affiche le numéro de la balise
+            f=open(path+"/message.txt", "a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
+            mess="balise_id="+str(balise_id[0][0])+","+"sensor_id="+str(i)+","+str(condition)
+            mess=str(mess)
+            print("message : "+mess)
+            f.write(mess) # affiche le numéro de la balise
             f.write('\n') # saute une ligne
             f.close() # ferme le fichier
             print("envoie mail")
@@ -85,7 +99,24 @@ while i <= nb_capteur:
         i = i+1
         print("fin de boucle")
 
-f=open(path+"/message.txt", mode="w") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
-#f.write("") # affiche le numéro de la balise
-f.close() # ferme le fichier
 db.close()
+
+sleep(1)
+
+f=open(path+"/message.txt", "r") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
+body_mess=str(f.readlines()) # lit le fichier
+print(body_mess)
+
+msg = MIMEMultipart()
+msg ['From'] = "envoie.test18@gmail.com"
+msg ['To'] = "recoit.test18@gmail.com"
+password = "vcdzemogzvalpljz"
+msg['Subject'] = str(datetime.now())
+body = body_mess
+msg.attach(MIMEText(body, 'html'))
+server = smtplib.SMTP("smtp.gmail.com", 587)
+server.starttls()
+server.login(msg['From'], password)
+server.sendmail(msg['From'], msg['To'], msg.as_string())
+server.quit()
+f.close()
