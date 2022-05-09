@@ -24,7 +24,7 @@ db = mysql.connector.connect(
     database="monitoring_pesquiers"
 )
 
-id_max="SELECT MAX(sensor_id) FROM `sensorsValues`"#requete pour récupérer le nombre de capteur
+id_max="SELECT MAX(sensor_id) FROM `listSensors`"#requete pour récupérer le nombre de capteur
 cursor = db.cursor()  # configure un curseur sur la bdd
 cursor.execute(id_max)  # execute ma requete
 nb_capteur = cursor.fetchall()  # récupère la valeur maximum ou minimum atteignable
@@ -75,22 +75,44 @@ while i <= nb_capteur:
         verif = eval(condition) # évalue la condition (rend True ou False)
         print(verif) # affiche le résultat de la condition
 
+
+        #si pas d'alerte:
         if verif == True: # si verif me ressort True alors ma valeur est dans les bonnes bornes
             print("pas de mail envoyé")
 
+        #en cas d'alerte:
         elif verif == False: # si verif me ressort False alors ma valeur est en dehors des bonnes bornes je dois donc envoyer un mail d'alerte
-            balise_id="SELECT `balise_id` FROM `sensorsValues` WHERE `sensor_id`=" + str(i) + " ORDER BY id DESC LIMIT 1" # trouve le numéro de la balise
+
+            req_balise_id = "SELECT `balise_id` FROM `sensorsValues` WHERE `sensor_id`=" + str(i) + " ORDER BY id DESC LIMIT 1" # requete pour observer la valeur du capteur dans la table
             cursor = db.cursor()  # configure un curseur sur la bdd
-            cursor.execute(balise_id)  # execute ma requete
-            balise_id = cursor.fetchall()  # récupère la valeur reçu par ma requête
+            cursor.execute(req_balise_id)  # execute ma requete
+            num_balise = cursor.fetchall()  # récupère la valeur reçu du capteur
+            cursor.close() # ferme le curseur
+            num_balise=str(num_balise[0][0]) # converti la valeur en string
+            print("num balise="+num_balise)
+
+            req_name_balise="SELECT `name` FROM `listBalise` WHERE `balise_id`=" + num_balise # trouve le numéro de la balise
+
+            cursor = db.cursor()  # configure un curseur sur la bdd
+            cursor.execute(req_name_balise)  # execute ma requete
+            name = cursor.fetchall()  # récupère la valeur reçu par ma requête
+            cursor.close() # ferme le curseur
+            print("name balise="+str(name[0][0])) # affiche le nom de la balise")
+
+            req_name_sensor="SELECT `name` FROM `listSensors` WHERE `sensor_id`=" + str(i) # trouve le numéro de la balise
+            print(req_name_sensor)
+            cursor = db.cursor()  # configure un curseur sur la bdd
+            cursor.execute(req_name_sensor)  # execute ma requete
+            name = cursor.fetchall()  # récupère la valeur reçu par ma requête
             cursor.close() # ferme le curseur
 
+            print("name sensor="+str(req_name_sensor[0][0])) # affiche le nom de la balise")
+
             f=open(path+"/message.txt", "a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
-            mess="balise_id="+str(balise_id[0][0])+","+"sensor_id="+str(i)+","+str(condition)
+            mess="<li>"+str(name[0][0])+", il y a un problème de "+str(name[0][0])+" car "+ str(condition)+'<br>' # crée le message à envoyer
             mess=str(mess)
             print("message : "+mess)
             f.write(mess) # affiche le numéro de la balise
-            f.write('\n') # saute une ligne
             f.close() # ferme le fichier
             print("envoie mail")
 
@@ -112,7 +134,7 @@ msg ['From'] = "envoie.test18@gmail.com"
 msg ['To'] = "recoit.test18@gmail.com"
 password = "vcdzemogzvalpljz"
 msg['Subject'] = str(datetime.now())
-body = body_mess
+body = "Une erreur est survenue sur la balise"+body_mess
 msg.attach(MIMEText(body, 'html'))
 server = smtplib.SMTP("smtp.gmail.com", 587)
 server.starttls()
