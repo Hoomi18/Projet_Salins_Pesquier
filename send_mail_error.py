@@ -121,6 +121,7 @@ while id <= nb_capteur:
             unite = cursor.fetchall()  # récupère la valeur maximum ou minimum atteignable
             cursor.close() # ferme le curseur
             #print("unité="+str(unite[0][0]))#débug affiche le symbole
+            
             f=open(path+"/message.txt", "a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
             mess="<li>"+str(name[0][0])+", il y a un problème de "+str(name[0][0])+" car la valeur reçu est de "+str(resultats[0][0])+str(symbol[0][0])+" alors qu'elle devrait être comprise entre "+str(control[0][0])+" et "+str(control[1][0])+" "+str(unite[0][0])+'<br>' # crée le message à envoyer
             mess=str(mess)
@@ -133,6 +134,22 @@ while id <= nb_capteur:
             print("erreur")
         id+=1
         print("fin de boucle")
+
+##########################################################################################################################################
+id_max="SELECT MAX(balise_id) FROM `listBalise`"#requete pour récupérer le nombre de capteur
+cursor = db.cursor()  # configure un curseur sur la bdd
+cursor.execute(id_max)  # execute ma requete
+nb_balise = cursor.fetchall()  # récupère la valeur maximum ou minimum atteignable
+cursor.close() # ferme le curseur
+
+id_balise=694201 #numéro de la balise à surveiller
+
+id_max="SELECT `battery_level` FROM `listBalise` WHERE `balise_id=`str("#requete pour récupérer le nombre de capteur
+cursor = db.cursor()  # configure un curseur sur la bdd
+cursor.execute(id_max)  # execute ma requete
+nb_capteur = cursor.fetchall()  # récupère la valeur maximum ou minimum atteignable
+cursor.close() # ferme le curseur
+##########################################################################################################################################
 
 db.close()#ferme la bdd
 
