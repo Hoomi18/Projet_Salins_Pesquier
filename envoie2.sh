@@ -1,5 +1,5 @@
 #! /bin/bash
-rasp='192.168.0.120/api/values.php'
+rasp='https://salins.btssnir.lycee-costebelle.fr/api/values.php'
 
 while [ 1 ]
 do
@@ -17,7 +17,7 @@ echo "CID="$CID
         com=`awk -F, '{print $3}' /var/iot/channels/$channel`
         echo "channel="$channel
         echo "com="$com
-        curl -X POST -d "&balise_id=$CID" $rasp
+        curl -X POST -d "$com&balise_id=$CID" $rasp
         echo "c'est fé"
         done
     else
@@ -26,6 +26,7 @@ echo "CID="$CID
 echo "**************"
 echo "**************"
 echo "**************"
+sleep 1
 
 done
 
