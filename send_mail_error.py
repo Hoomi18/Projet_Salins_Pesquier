@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart #pour envoyer un mail
 from email.mime.text import MIMEText #pour envoyer un mail
 import smtplib #pour envoyer un mail
 import re #pour les adapter mon message
-
+import os #pour supprimer le fichier
 
 path=pathlib.Path("send_mail_error.py").parent.absolute()#récupère le chemin du programme
 path=str(path)#converti le chemin en string
@@ -169,22 +169,26 @@ db.close()#ferme la bdd
 sleep(1)#attend 1 seconde
 
 ##############################################envoie de mail###############################################################################
-
-f=open(path+"/message.txt", "r") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
+f=open(path+"/message.txt", "r") # ouvre le fichier message.txt en mode lecture ("C:\Users\Corentin\message.txt")
 body_mess=str(f.readlines()) # lit le fichier
 body_mess=re.sub("\[|\'|\]|\"", "",body_mess) # supprime les retours à la ligne
 #print(body_mess)#débug affiche le message
 
-msg = MIMEMultipart()#crée un message
-msg ['From'] = "envoie.test18@gmail.com"#adresse de l'expéditeur
-msg ['To'] = "recoit.test18@gmail.com"#adresse du destinataire
-password = "vcdzemogzvalpljz"#mot de passe d'application l'expéditeur
-msg['Subject'] = str(datetime.now()) # sujet du message (date et heure)
-body = "<p>Une erreur est survenue sur la balise:"+body_mess+"</p></li>"#corps du message
-msg.attach(MIMEText(body, 'html'))#ajoute le corps du message avec le type d'encoage (html)
-server = smtplib.SMTP("smtp.gmail.com", 587)#configure le serveur de messagerie (smtp pour gmail)
-server.starttls()#active le TLS
-server.login(msg['From'], password)#connecte l'expéditeur à son compte
-server.sendmail(msg['From'], msg['To'], msg.as_string())#envoie le message
-server.quit()#ferme la connexion
-f.close()#ferme le fichier
+if(body_mess!=""):#si le message n'est pas vide
+    msg = MIMEMultipart()#crée un message
+    msg ['From'] = "envoie.test18@gmail.com"#adresse de l'expéditeur
+    msg ['To'] = "recoit.test18@gmail.com"#adresse du destinataire
+    password = "vcdzemogzvalpljz"#mot de passe d'application l'expéditeur
+    msg['Subject'] = str(datetime.now()) # sujet du message (date et heure)
+    body = "<p>Une erreur est survenue sur la balise:"+body_mess+"</p></li>"#corps du message
+    msg.attach(MIMEText(body, 'html'))#ajoute le corps du message avec le type d'encoage (html)
+    server = smtplib.SMTP("smtp.gmail.com", 587)#configure le serveur de messagerie (smtp pour gmail)
+    server.starttls()#active le TLS
+    server.login(msg['From'], password)#connecte l'expéditeur à son compte
+    server.sendmail(msg['From'], msg['To'], msg.as_string())#envoie le message
+    server.quit()#ferme la connexion
+    f.close()#ferme le fichier
+    os.remove(path+"/message.txt")#supprime le fichier message.txt
+    print("mail envoyé")#débug affiche confirmation de l'envoie
+else:
+    print("pas de mail envoyé")
