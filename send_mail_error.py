@@ -2,7 +2,6 @@
 from datetime import datetime
 import time #date et heure
 from time import sleep
-from tkinter import N #faire des pauses
 import mysql.connector #connexion avec la bdd
 import pathlib #pour avoir le chemin du script
 from email.mime.multipart import MIMEMultipart #pour envoyer un mail
@@ -21,7 +20,7 @@ f.close() # ferme le fichier
 
 # paramètre de connexion avec la bdd
 db = mysql.connector.connect(
-    host="localhost",
+    host="Localhost",
     user="py_con",
     password="pesquierPY",
     database="monitoring_pesquiers"
