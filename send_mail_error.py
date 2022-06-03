@@ -21,7 +21,7 @@ f.close() # ferme le fichier
 
 # paramètre de connexion avec la bdd
 db = mysql.connector.connect(
-    host="192.168.0.120",
+    host="localhost",
     user="py_con",
     password="pesquierPY",
     database="monitoring_pesquiers"
@@ -53,7 +53,7 @@ while id_balise <= nb_balise:
     #print(id_balise)#débugage
     while id <= nb_capteur:
 
-        request_sensor = "SELECT `value` FROM `sensorsValues` WHERE `sensor_id`=" + str(id)+ " AND `balise_id`= "+str(id_balise)+" ORDER BY id DESC LIMIT 1" # requete pour observer la valeur du capteur dans la table
+        request_sensor = "SELECT `value` FROM `sensorsValues` WHERE `sensor_id`=" + str(id) + " AND `balise_id`= "+str(id_balise)+" ORDER BY id DESC LIMIT 1" # requete pour observer la valeur du capteur dans la table
         valeur_comparant = "SELECT `control` FROM `alerts` WHERE `sensor_id`=" + str(id) # requete pour observer le nombre que je dois comparer dans la table 
         sup_or_inf = "SELECT `sign` FROM `alerts` WHERE `sensor_id`=" + str(id) # requete pour observer dans la table le signe de comparaison
 
@@ -76,13 +76,7 @@ while id_balise <= nb_balise:
         #print(signe)#débugage
         #print(control)#débugage
         #print("j'ai fait les cursors")#débugage pour voir si tout va bien
-        req_name_balise="SELECT `name` FROM `listBalise` WHERE `balise_id`=" + str(id_balise) # trouve le numéro de la balise
 
-        cursor = db.cursor()  # configure un curseur sur la bdd
-        cursor.execute(req_name_balise)  # execute ma requete
-        name_balise = cursor.fetchall()  # récupère la valeur reçu par ma requête
-        cursor.close() # ferme le curseur
-        #print("name balise="+str(name_balise[0][0])) #débugage affiche le nom de la balise")
         
         if(signe==[] or resultats==[] or control==[]): # si une des valeurs est vide:
             #print("pas de valeur")#en cas d'aucune valeur reçu
@@ -101,11 +95,7 @@ while id_balise <= nb_balise:
 ##############################################vérification de mes capteurs###############################################################################
 
             #en cas d'alerte:
-            if verif == False: # si verif me ressort False alors ma valeur est en dehors des bonnes bornes je dois donc envoyer un mail d'alerte
-
-                
-
-                
+            if verif == False: # si verif me ressort False alors ma valeur est en dehors des bonnes bornes je dois donc envoyer un mail d'alerte 
 
                 req_name_sensor="SELECT `name` FROM `listSensors` WHERE `sensor_id`=" + str(id) # trouve le numéro de la balise
                 #print(req_name_sensor)#débugage affiche ma requete
@@ -150,6 +140,13 @@ while id_balise <= nb_balise:
     battery=int(battery_level[0][0])
     #print("battery="+str(battery))#débug affiche le niveau de la batterie
 
+    req_name_balise="SELECT `name` FROM `listBalise` WHERE `balise_id`=" + str(id_balise) # trouve le numéro de la balise
+    cursor = db.cursor()  # configure un curseur sur la bdd
+    cursor.execute(req_name_balise)  # execute ma requete
+    name_balise = cursor.fetchall()  # récupère la valeur reçu par ma requête
+    cursor.close() # ferme le curseur
+    #print("name balise="+str(name_balise[0][0])) #débugage affiche le nom de la balise")
+        
     ######################écriture de l'alèrte############################
     if battery<=30:#si le niveau de la batterie est inférieur à 30%
         f=open(path+"/message.txt", "a") # ouvre le fichier message.txt en mode écriture ("C:\Users\Corentin\message.txt")
